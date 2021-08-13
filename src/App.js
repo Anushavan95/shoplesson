@@ -1,25 +1,105 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Header from "./Components/Header/Header";
+import Server from "./Components/Server/Server";
+import axios from "axios";
+import Logo from "./images/cart.png";
+import "./App.scss";
+import Cart1 from "./images/Green.jpg";
+import Cart2 from "./images/black-shirt.jpg";
+import Cart3 from "./images/man-black.webp";
+import Cart from "./Components/Cart/Cart";
+import Local from "./Components/Main/Local";
+import About from "./Components/About";
+import { Route } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor() {
+    console.log("app constructor");
+    super();
+    this.state = {
+      product: [
+        { name: "Product-1", img: Cart1, price: 23 },
+        { name: "Product-2", img: Cart2, price: 30 },
+        { name: "Product-3", img: Cart3, price: 13 },
+      ],
+      productUrl: [],
+
+      showModal: false,
+      cartItems: [],
+    };
+  }
+  componentDidMount() {
+    axios.get("https://fakestoreapi.com/products").then((res) => {
+      const data = res.data;
+      this.setState(({ productUrl }) => {
+        return {
+          productUrl: data,
+        };
+      });
+    });
+  }
+
+  addProductCartItem = (cart) => {
+    this.setState(({ cartItems, showModal }) => {
+      console.log(cartItems, "foo");
+
+      const newCartItems = [...cartItems, cart];
+      return {
+        cartItems: newCartItems,
+      };
+    });
+  };
+
+  clickOpenModalCartComponent = () => {
+    this.setState(({ showModal }) => {
+      return {
+        showModal: !showModal,
+      };
+    });
+  };
+
+  componentWillMount() {
+    console.log("componentWillMount");
+  }
+
+  render() {
+    const { cartItems, showModal, sum, productUrl } = this.state;
+    console.log(productUrl);
+    return (
+      <div>
+        <Header
+          icon={Logo}
+          clickOpenModalCartComponent={this.clickOpenModalCartComponent}
+        />
+
+        <Route path={"/"} exact render={() => <h1>Home Page</h1>} />
+        <Route path={"/local"}>
+          <section className="elem">
+            {this.state.product.map((item) => {
+              return (
+                <Local
+                  {...item}
+                  addProductCartItem={() => this.addProductCartItem(item)}
+                />
+              );
+            })}
+          </section>
+        </Route>
+
+        <Cart showModal={showModal} cart={cartItems} />
+
+        <Route path={"/server"}>
+          <section className="server">
+            {productUrl.map((urlItems) => {
+              return <Server {...urlItems} />;
+            })}
+          </section>
+        </Route>
+        <Route path={"/about"} render={() => <About />} />
+        <Route path={"/local"} component={About} />
+      </div>
+    );
+  }
 }
 
 export default App;
