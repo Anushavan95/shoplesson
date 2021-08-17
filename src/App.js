@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import Header from "./Components/Header/Header";
 import Server from "./Components/Server/Server";
 import axios from "axios";
@@ -10,7 +10,7 @@ import Cart3 from "./images/man-black.webp";
 import Cart from "./Components/Cart/Cart";
 import Local from "./Components/Main/Local";
 import About from "./Components/About";
-import { Route } from "react-router-dom";
+import { Redirect, Route } from "react-router-dom";
 
 class App extends React.Component {
   constructor() {
@@ -18,9 +18,9 @@ class App extends React.Component {
     super();
     this.state = {
       product: [
-        { name: "Product-1", img: Cart1, price: 23 },
-        { name: "Product-2", img: Cart2, price: 30 },
-        { name: "Product-3", img: Cart3, price: 13 },
+        { name: "Product-1", img: Cart1, id: 0, price: 23 },
+        { name: "Product-2", img: Cart2, id: 1, price: 30 },
+        { name: "Product-3", img: Cart3, id: 2, price: 13 },
       ],
       productUrl: [],
 
@@ -73,21 +73,28 @@ class App extends React.Component {
         />
 
         <Route path={"/"} exact render={() => <h1>Home Page</h1>} />
-        <Route path={"/local"}>
-          <section className="elem">
-            {this.state.product.map((item) => {
-              return (
-                <Local
-                  {...item}
-                  addProductCartItem={() => this.addProductCartItem(item)}
-                />
-              );
-            })}
-          </section>
-        </Route>
-
+        <Route
+          path={"/local"}
+          render={() => (
+            <Fragment>
+              <section className="elem">
+                {this.state.product.map((item) => {
+                  return (
+                    <Local
+                      {...item}
+                      addProductCartItem={({ match, history }) =>
+                        this.addProductCartItem(item)
+                      }
+                    />
+                  );
+                })}
+              </section>
+              <About />
+            </Fragment>
+          )}
+        />
         <Cart showModal={showModal} cart={cartItems} />
-
+        <Route path={"/local/:name"} render={() => <h1>element</h1>} />
         <Route path={"/server"}>
           <section className="server">
             {productUrl.map((urlItems) => {
@@ -95,8 +102,9 @@ class App extends React.Component {
             })}
           </section>
         </Route>
-        <Route path={"/about"} render={() => <About />} />
-        <Route path={"/local"} component={About} />
+
+        <Route exact path={"/about"} render={() => <About />} />
+        <Redirect to="/server" />
       </div>
     );
   }

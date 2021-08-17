@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 
-export default class Local extends Component {
+class Local extends Component {
   state = {
     nameValue: "Product",
     toggle: false,
@@ -24,12 +25,14 @@ export default class Local extends Component {
   componentDidUpdate() {
     console.log("componentDidUpdate");
   }
-
+  changeUrl = () => {
+    this.props.history.push(`/About`);
+  };
   render() {
     const { addProductCartItem, img, price, name } = this.props;
 
     return (
-      <div className="items">
+      <div className="items" onClick={this.changeUrl}>
         <div className="products-item">
           <h2>{this.state.nameValue}</h2>
           <input type="text" onChange={this.changeValue} />
@@ -43,3 +46,4 @@ export default class Local extends Component {
     );
   }
 }
+export default withRouter(Local);
